@@ -9,6 +9,7 @@ module Types.GridState
 
 import Types exposing (..)
 import Set
+import Mustache
 
 
 cellsToPanes : EditMode -> List (List Cell) -> List Pane
@@ -102,4 +103,83 @@ scaleUnitHasError { input } =
 
 toCss : GridState -> String
 toCss { cells, rows, columns } =
-    "// CSS" ++ "\n" ++ ".container {\ndisplay: grid;"
+    Mustache.render
+        [ List.map (.length >> cellLengthToCss) columns
+            |> String.join " "
+            |> Mustache.Variable "columns"
+        , List.map (.length >> cellLengthToCss) rows
+            |> String.join " "
+            |> Mustache.Variable "rows"
+        , cells
+            |> List.map
+                (\list ->
+                    list
+                        |> List.map .gridArea
+                        |> String.join " "
+                        |> \str -> String.concat [ "'", str, "'" ]
+                )
+            |> String.join " "
+            |> Mustache.Variable "areas"
+        , cellsToPanes PanesMode cells
+            |> List.map
+                (\{ gridArea } ->
+                    Mustache.render [ Mustache.Variable "gridArea" gridArea ] areaCssTemplate
+                )
+            |> String.concat
+            |> Mustache.Variable "areaCss"
+        , cellsToPanes PanesMode cells
+            |> List.map
+                (\{ gridArea } ->
+                    Mustache.render [ Mustache.Variable "gridArea" gridArea ] areaHtmlTemplate
+                )
+            |> String.concat
+            |> Mustache.Variable "areaHtml"
+        ]
+        cssTemplate
+
+
+cssTemplate : String
+cssTemplate =
+    """// CSS
+.container {
+    width: 100%;
+    height: 100%;
+    display: grid;
+    grid-template-columns: {{ columns }};
+    grid-template-rows: {{ rows }};
+    grid-template-areas: {{ areas }};
+}
+
+{{ areaCss }}
+// HTML
+<div class='container'>
+{{ areaHtml }}</div>
+"""
+
+
+areaCssTemplate : String
+areaCssTemplate =
+    """.area-{{ gridArea }} {
+    grid-area: {{ gridArea }};
+}
+
+"""
+
+
+areaHtmlTemplate : String
+areaHtmlTemplate =
+    """  <div class='area-{{ gridArea }}'></div>
+"""
+
+
+cellLengthToCss : CellLength -> String
+cellLengthToCss length =
+    case length of
+        Px num ->
+            toString num ++ "px"
+
+        Percent num ->
+            toString num ++ "%"
+
+        Frame num ->
+            toString num ++ "fr"

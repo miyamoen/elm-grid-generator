@@ -13,8 +13,7 @@ import Rocket exposing ((=>))
 view : Model -> Element Styles variation Msg
 view { gridState } =
     column None
-        [ paddingXY 10 12, spacing 5 ]
+        [ paddingXY 10 12, spacing 5, scrollbars ]
         [ h3 None [] <| text "OutputMode"
         , el None [] <| html <| pre [] [ Html.text <| toCss gridState ]
-        , node "pre" <| text <| toCss gridState
         ]
