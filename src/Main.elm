@@ -171,6 +171,27 @@ update msg model =
                 model
                 => []
 
+        BreakPane targetArea ->
+            Lens.modify Accessor.gridState
+                (\grid ->
+                    { grid
+                        | cells =
+                            listListMap
+                                (\cell ->
+                                    if cell.gridArea == targetArea then
+                                        { cell
+                                            | gridArea = "g" ++ toString cell.id
+                                            , input = "g" ++ toString cell.id
+                                        }
+                                    else
+                                        cell
+                                )
+                                grid.cells
+                    }
+                )
+                model
+                => []
+
 
 listGetAt : Int -> List a -> Maybe a
 listGetAt idx xs =
@@ -178,6 +199,11 @@ listGetAt idx xs =
         Nothing
     else
         List.head <| List.drop idx xs
+
+
+listListMap : (a -> b) -> List (List a) -> List (List b)
+listListMap tagger listList =
+    List.map (\list -> List.map tagger list) listList
 
 
 
