@@ -9,8 +9,6 @@ model =
     , rawColumns = [ "1fr" ]
     , rows = [ Frame 1 ]
     , rawRows = [ "1fr" ]
-    , rowCount = 1
-    , columnCount = 1
     , selectedCell = Nothing
     , cells = [ [ { id = 0, gridArea = "g0", input = "g0" } ] ]
     }

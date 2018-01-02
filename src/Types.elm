@@ -11,10 +11,8 @@ type alias GridState =
     { cells : List (List Cell)
     , rows : List CellLength
     , rawRows : List String
-    , rowCount : Int
     , columns : List CellLength
     , rawColumns : List String
-    , columnCount : Int
     , selectedCell : Maybe Cell
     }
 
@@ -53,3 +51,8 @@ type Presets
 type Msg
     = NoOp
     | SetPreset Presets
+    | SwitchEditMode EditMode
+    | AddColumn
+    | RemoveColumn
+    | AddRow
+    | RemoveRow

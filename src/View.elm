@@ -10,6 +10,7 @@ import View.StyleSheet exposing (..)
 import View.Helper exposing (..)
 import View.Menu
 import View.GridEditor
+import View.Output
 import Rocket exposing ((=>))
 
 
@@ -28,7 +29,17 @@ appGrid model =
         { columns = [ Attrs.fill, px 200 ]
         , rows = [ percent 100 => [ span 1 "left", span 1 "right" ] ]
         , cells =
-            [ named "left" <| editor model
+            [ named "left" <|
+                (case model.editMode of
+                    PanesMode ->
+                        editor model
+
+                    CellsMode ->
+                        editor model
+
+                    OutputMode ->
+                        View.Output.view model
+                )
             , named "right" <| View.Menu.view model
             ]
         }
@@ -45,8 +56,8 @@ editor model =
             , px 30 => [ span 1 "addr", span 1 ".", span 1 "." ]
             ]
         , cells =
-            [ named "addc" <| addButtons
-            , named "addr" <| addButtons
+            [ named "addc" <| columnButtons
+            , named "addr" <| rowButtons
             , named "edit" <| View.GridEditor.view model
             , named "column" <| columnInputs model
             , named "row" <| rowInputs model
@@ -54,12 +65,21 @@ editor model =
         }
 
 
-addButtons : Element Styles variation Msg
-addButtons =
+columnButtons : Element Styles variation Msg
+columnButtons =
     row None
         [ padding 3, spacing 5, spread, clip ]
-        [ node "button" <| el ButtonStyle [ width <| percent 50 ] <| text "+"
-        , node "button" <| el ButtonStyle [ width <| percent 50 ] <| text "-"
+        [ simpleButton ButtonStyle [ width <| percent 50, onClick AddColumn ] <| text "+"
+        , simpleButton ButtonStyle [ width <| percent 50, onClick RemoveColumn ] <| text "-"
+        ]
+
+
+rowButtons : Element Styles variation Msg
+rowButtons =
+    row None
+        [ padding 3, spacing 5, spread, clip ]
+        [ simpleButton ButtonStyle [ width <| percent 50, onClick AddRow ] <| text "+"
+        , simpleButton ButtonStyle [ width <| percent 50, onClick RemoveRow ] <| text "-"
         ]
 
 

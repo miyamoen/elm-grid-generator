@@ -17,8 +17,6 @@ model =
         , "1fr"
         , "40px"
         ]
-    , rowCount = 3
-    , columnCount = 3
     , selectedCell = Nothing
     , cells =
         [ [ { id = 0

@@ -6,6 +6,11 @@ import Types exposing (..)
 import Rocket exposing ((=>))
 
 
+simpleButton : style -> List (Attribute variation msg) -> Element style variation msg -> Element style variation msg
+simpleButton style attrs elm =
+    node "button" <| el style attrs elm
+
+
 cellLengthToLength : CellLength -> Length
 cellLengthToLength length =
     case length of

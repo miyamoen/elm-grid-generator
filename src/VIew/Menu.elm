@@ -6,11 +6,12 @@ import Element.Attributes as Attrs exposing (..)
 import Element.Events exposing (on, onClick)
 import Types exposing (..)
 import View.StyleSheet exposing (..)
+import View.Helper exposing (simpleButton)
 import Rocket exposing ((=>))
 
 
 view : Model -> Element Styles variation Msg
-view model =
+view { editMode } =
     column MenuStyle
         [ paddingXY 15 18, spacing 10 ]
         [ column None
@@ -24,9 +25,18 @@ view model =
             [ text "EditMode"
             , row None
                 [ spacing 5 ]
-                [ text "[panes]"
-                , node "button" <| el ButtonStyle [] <| text "cells"
-                , node "button" <| el ButtonStyle [] <| text "output"
+                [ if editMode == PanesMode then
+                    text "[panes]"
+                  else
+                    simpleButton ButtonStyle [ onClick <| SwitchEditMode PanesMode ] <| text "panes"
+                , if editMode == CellsMode then
+                    text "[cells]"
+                  else
+                    simpleButton ButtonStyle [ onClick <| SwitchEditMode CellsMode ] <| text "cells"
+                , if editMode == OutputMode then
+                    text "[output]"
+                  else
+                    simpleButton ButtonStyle [ onClick <| SwitchEditMode OutputMode ] <| text "output"
                 ]
             ]
         , hairline HRStyle
