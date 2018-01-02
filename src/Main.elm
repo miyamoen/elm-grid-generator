@@ -210,6 +210,19 @@ update msg model =
                             )
                    ]
 
+        SelectPane areaName ->
+            { model | selectedGridArea = Just areaName }
+                => [ Dom.focus "target-pane"
+                        |> Task.attempt
+                            (\res ->
+                                let
+                                    _ =
+                                        Debug.log "target-pane focused" res
+                                in
+                                    NoOp
+                            )
+                   ]
+
         UnSelectCell ->
             case model.selectedCellId of
                 Just targetId ->
@@ -231,10 +244,32 @@ update msg model =
                         => []
 
                 Nothing ->
-                    model
+                    model => []
+
+        UnSelectPane ->
+            case model.selectedGridArea of
+                Just targetName ->
+                    Lens.modify Accessor.gridState
+                        (\grid ->
+                            { grid
+                                | cells =
+                                    listListMap
+                                        (\cell ->
+                                            if cell.gridArea == targetName then
+                                                { cell | input = cell.gridArea }
+                                            else
+                                                cell
+                                        )
+                                        grid.cells
+                            }
+                        )
+                        { model | selectedGridArea = Nothing }
                         => []
 
-        InputSelectCell str ->
+                Nothing ->
+                    model => []
+
+        InputSelectedCell str ->
             case model.selectedCellId of
                 Just targetId ->
                     Lens.modify Accessor.gridState
@@ -257,9 +292,35 @@ update msg model =
                 Nothing ->
                     model => []
 
-        EnterCellInput ->
-            case model.selectedCellId of
-                Just targetId ->
+        InputSelectedPane str ->
+            case model.selectedGridArea of
+                Just targetName ->
+                    Lens.modify Accessor.gridState
+                        (\grid ->
+                            { grid
+                                | cells =
+                                    listListMap
+                                        (\cell ->
+                                            if cell.gridArea == targetName then
+                                                { cell | input = str }
+                                            else
+                                                cell
+                                        )
+                                        grid.cells
+                            }
+                        )
+                        model
+                        => []
+
+                Nothing ->
+                    model => []
+
+        EnterCellInput input ->
+            case ( input, model.selectedCellId ) of
+                ( "", _ ) ->
+                    model => []
+
+                ( _, Just targetId ) ->
                     Lens.modify Accessor.gridState
                         (\grid ->
                             { grid
@@ -277,7 +338,33 @@ update msg model =
                         { model | selectedCellId = Nothing }
                         => []
 
-                Nothing ->
+                ( _, Nothing ) ->
+                    model => []
+
+        EnterPaneInput input ->
+            case ( input, model.selectedGridArea ) of
+                ( "", _ ) ->
+                    model => []
+
+                ( _, Just targetName ) ->
+                    Lens.modify Accessor.gridState
+                        (\grid ->
+                            { grid
+                                | cells =
+                                    listListMap
+                                        (\cell ->
+                                            if cell.gridArea == targetName then
+                                                { cell | gridArea = cell.input }
+                                            else
+                                                cell
+                                        )
+                                        grid.cells
+                            }
+                        )
+                        { model | selectedCellId = Nothing }
+                        => []
+
+                ( _, Nothing ) ->
                     model => []
 
 

@@ -24,7 +24,16 @@ view { gridState, editMode, selectedCellId, selectedGridArea } =
                 , rows = namedRowsInPanes gridState.rows gridState.cells
                 , cells =
                     cellsToPanes editMode gridState.cells
-                        |> List.map (\pane -> Keyed.named pane.gridArea <| paneView pane)
+                        |> List.map
+                            (\pane ->
+                                Keyed.named pane.gridArea <|
+                                    paneView
+                                        (selectedGridArea
+                                            |> Maybe.map (\name -> name == pane.gridArea)
+                                            |> Maybe.withDefault False
+                                        )
+                                        pane
+                            )
                 }
 
         CellsMode ->
@@ -71,14 +80,42 @@ namedRowsInCells units cellsList =
         cellsList
 
 
-paneView : Pane -> Element Styles variation Msg
-paneView { id, gridArea, cells } =
+paneView : Bool -> Pane -> Element Styles variation Msg
+paneView selected { id, gridArea, cells } =
     wrappedColumn PaneStyle
         [ center
         , verticalCenter
         , spacing 5
+        , padding 3
         ]
-        [ text gridArea
+        [ if selected then
+            Input.text NameInputStyle
+                [ paddingXY 0 5
+                , Attrs.id "target-pane"
+                , onBlur UnSelectPane
+                , on "keydown" <|
+                    considerKeyboardEvent
+                        (\event ->
+                            if event.keyCode == Enter then
+                                List.head cells
+                                    |> Maybe.map .input
+                                    |> Maybe.withDefault ""
+                                    |> EnterPaneInput
+                                    |> Just
+                            else
+                                Nothing
+                        )
+                ]
+                { onChange = InputSelectedPane
+                , value =
+                    List.head cells
+                        |> Maybe.map .input
+                        |> Maybe.withDefault "ErrCode 0002"
+                , label = Input.hiddenLabel ""
+                , options = []
+                }
+          else
+            el None [ onClick <| SelectPane gridArea ] <| text gridArea
         , when (List.length cells > 1)
             (simpleButton ButtonStyle [ onClick <| BreakPane gridArea ] <| text "unchain")
         ]
@@ -101,12 +138,12 @@ cellView selected { id, gridArea, input } =
                     considerKeyboardEvent
                         (\event ->
                             if event.keyCode == Enter then
-                                Just EnterCellInput
+                                Just <| EnterCellInput input
                             else
                                 Nothing
                         )
                 ]
-                { onChange = InputSelectCell
+                { onChange = InputSelectedCell
                 , value = input
                 , label = Input.hiddenLabel ""
                 , options = []

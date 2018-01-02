@@ -66,5 +66,9 @@ type Msg
     | BreakPane String
     | SelectCell Int
     | UnSelectCell
-    | InputSelectCell String
-    | EnterCellInput
+    | InputSelectedCell String
+    | EnterCellInput String
+    | SelectPane String
+    | UnSelectPane
+    | InputSelectedPane String
+    | EnterPaneInput String
