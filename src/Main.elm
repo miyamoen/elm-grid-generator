@@ -11,7 +11,9 @@ import Types.Presets.Simple as Simple
 import Types.Presets.HolyGrail as HolyGrail
 import Monocle.Lens as Lens exposing (Lens)
 import Keyboard.Event
+import Keyboard.Key as Key
 import Rocket exposing (..)
+import Dom
 
 
 ---- MODEL ----
@@ -24,7 +26,12 @@ init =
     , selectedCellId = Nothing
     , selectedGridArea = Nothing
     }
-        => []
+        => [ focusDom ]
+
+
+focusDom : Cmd Msg
+focusDom =
+    Dom.focus "outermost" |> Task.attempt (always NoOp)
 
 
 
@@ -200,27 +207,13 @@ update msg model =
         SelectCell id ->
             { model | selectedCellId = Just id }
                 => [ Dom.focus "target-cell"
-                        |> Task.attempt
-                            (\res ->
-                                let
-                                    _ =
-                                        Debug.log "target-cell focused" res
-                                in
-                                    NoOp
-                            )
+                        |> Task.attempt (always NoOp)
                    ]
 
         SelectPane areaName ->
             { model | selectedGridArea = Just areaName }
                 => [ Dom.focus "target-pane"
-                        |> Task.attempt
-                            (\res ->
-                                let
-                                    _ =
-                                        Debug.log "target-pane focused" res
-                                in
-                                    NoOp
-                            )
+                        |> Task.attempt (always NoOp)
                    ]
 
         UnSelectCell ->
@@ -241,7 +234,7 @@ update msg model =
                             }
                         )
                         { model | selectedCellId = Nothing }
-                        => []
+                        => [ focusDom ]
 
                 Nothing ->
                     model => []
@@ -264,7 +257,7 @@ update msg model =
                             }
                         )
                         { model | selectedGridArea = Nothing }
-                        => []
+                        => [ focusDom ]
 
                 Nothing ->
                     model => []

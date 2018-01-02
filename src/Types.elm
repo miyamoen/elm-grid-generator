@@ -1,5 +1,7 @@
 module Types exposing (..)
 
+import Keyboard.Event exposing (KeyboardEvent)
+
 
 type alias Model =
     { editMode : EditMode

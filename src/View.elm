@@ -4,7 +4,7 @@ import Html exposing (Html, dl, dd, dt)
 import Element exposing (..)
 import Element.Input as Input
 import Element.Attributes as Attrs exposing (..)
-import Element.Events exposing (on, onClick)
+import Element.Events exposing (on, onWithOptions, onClick)
 import Types exposing (..)
 import Types.GridState exposing (..)
 import View.StyleSheet exposing (..)
@@ -12,6 +12,9 @@ import View.Helper exposing (..)
 import View.Menu
 import View.GridEditor
 import View.Output
+import Keyboard.Event exposing (considerKeyboardEvent)
+import Keyboard.Key as Key
+import Json.Decode as Json
 import Rocket exposing ((=>))
 
 
@@ -26,6 +29,36 @@ appGrid model =
     namedGrid MainStyle
         [ width Attrs.fill
         , height Attrs.fill
+        , Attrs.id "outermost"
+        , attribute "tabindex" "0"
+        , onWithOptions "keydown" { stopPropagation = False, preventDefault = True } <|
+            considerKeyboardEvent
+                (\{ ctrlKey, shiftKey, keyCode } ->
+                    case ( keyCode, ctrlKey, shiftKey ) of
+                        ( Key.One, True, False ) ->
+                            Just <| SwitchEditMode PanesMode
+
+                        ( Key.Two, True, False ) ->
+                            Just <| SwitchEditMode CellsMode
+
+                        ( Key.Three, True, False ) ->
+                            Just <| SwitchEditMode OutputMode
+
+                        ( Key.Left, False, True ) ->
+                            Just RemoveColumn
+
+                        ( Key.Right, False, True ) ->
+                            Just AddColumn
+
+                        ( Key.Up, False, True ) ->
+                            Just RemoveRow
+
+                        ( Key.Down, False, True ) ->
+                            Just AddRow
+
+                        _ ->
+                            Nothing
+                )
         ]
         { columns = [ Attrs.fill, px 200 ]
         , rows = [ percent 100 => [ span 1 "left", span 1 "right" ] ]

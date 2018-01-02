@@ -1,4 +1,11 @@
-module Types.GridState exposing (cellsToPanes, getMinBlankIds, convertToCellLength, scaleUnitHasError)
+module Types.GridState
+    exposing
+        ( cellsToPanes
+        , getMinBlankIds
+        , convertToCellLength
+        , scaleUnitHasError
+        , toCss
+        )
 
 import Types exposing (..)
 import Set
@@ -91,3 +98,8 @@ scaleUnitHasError { input } =
     convertToCellLength input
         |> Maybe.map (\_ -> False)
         |> Maybe.withDefault True
+
+
+toCss : GridState -> String
+toCss { cells, rows, columns } =
+    "// CSS" ++ "\n" ++ ".container {\ndisplay: grid;"

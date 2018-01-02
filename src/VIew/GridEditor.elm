@@ -10,7 +10,7 @@ import Types.GridState exposing (..)
 import View.StyleSheet exposing (..)
 import View.Helper exposing (..)
 import Rocket exposing ((=>))
-import Keyboard.Event exposing (KeyboardEvent, considerKeyboardEvent)
+import Keyboard.Event exposing (considerKeyboardEvent)
 import Keyboard.Key exposing (Key(..))
 
 
