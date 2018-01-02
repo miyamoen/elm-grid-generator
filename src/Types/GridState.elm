@@ -1,4 +1,4 @@
-module Types.GridState exposing (cellsToPanes, getMinBlankIds)
+module Types.GridState exposing (cellsToPanes, getMinBlankIds, convertToCellLength, scaleUnitHasError)
 
 import Types exposing (..)
 import Set
@@ -63,3 +63,31 @@ getMinBlankIds_ ({ olds, news, next, count } as acc) =
         getMinBlankIds_ { acc | next = next + 1 }
     else
         getMinBlankIds_ { acc | next = next + 1, news = next :: news, count = count - 1 }
+
+
+convertToCellLength : String -> Maybe CellLength
+convertToCellLength str =
+    if String.endsWith "px" str then
+        String.dropRight 2 str
+            |> String.toFloat
+            |> Result.toMaybe
+            |> Maybe.map Px
+    else if String.endsWith "fr" str then
+        String.dropRight 2 str
+            |> String.toInt
+            |> Result.toMaybe
+            |> Maybe.map Frame
+    else if String.endsWith "%" str then
+        String.dropRight 1 str
+            |> String.toFloat
+            |> Result.toMaybe
+            |> Maybe.map Percent
+    else
+        Nothing
+
+
+scaleUnitHasError : ScaleUnit -> Bool
+scaleUnitHasError { input } =
+    convertToCellLength input
+        |> Maybe.map (\_ -> False)
+        |> Maybe.withDefault True

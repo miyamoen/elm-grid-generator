@@ -20,7 +20,11 @@ type Styles
     | HRStyle
 
 
-styleSheet : StyleSheet Styles variation
+type Variations
+    = HasError
+
+
+styleSheet : StyleSheet Styles Variations
 styleSheet =
     Style.styleSheet
         [ style None []
@@ -46,7 +50,11 @@ styleSheet =
                 ]
             ]
         , style InputStyle
-            [ Shadow.innerGlow (rgba 0 0 0 0.3) 0.5 ]
+            [ Shadow.innerGlow (rgba 0 0 0 0.3) 0.5
+            , variation HasError
+                [ Color.background <| rgba 255 170 170 0.8
+                ]
+            ]
         , style LinkStyle
             [ Color.text <| rgba 119 170 255 1
             , Font.underline

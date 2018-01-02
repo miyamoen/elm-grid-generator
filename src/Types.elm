@@ -9,11 +9,15 @@ type alias Model =
 
 type alias GridState =
     { cells : List (List Cell)
-    , rows : List CellLength
-    , rawRows : List String
-    , columns : List CellLength
-    , rawColumns : List String
+    , rows : List ScaleUnit
+    , columns : List ScaleUnit
     , selectedCell : Maybe Cell
+    }
+
+
+type alias ScaleUnit =
+    { length : CellLength
+    , input : String
     }
 
 
@@ -56,3 +60,6 @@ type Msg
     | RemoveColumn
     | AddRow
     | RemoveRow
+    | InputColumn Int String
+    | InputRow Int String
+    | BreakPane String

@@ -45,8 +45,7 @@ update msg model =
             Lens.modify Accessor.gridState
                 (\grid ->
                     { grid
-                        | columns = grid.columns ++ [ Frame 1 ]
-                        , rawColumns = grid.rawColumns ++ [ "1fr" ]
+                        | columns = grid.columns ++ [ ScaleUnit (Frame 1) "1fr" ]
                         , cells =
                             List.map2
                                 (\rowCells id ->
@@ -74,7 +73,6 @@ update msg model =
                         if columnCount > 1 then
                             { grid
                                 | columns = List.take (columnCount - 1) grid.columns
-                                , rawColumns = List.take (columnCount - 1) grid.rawColumns
                                 , cells =
                                     List.map
                                         (\rowCells ->
@@ -92,8 +90,7 @@ update msg model =
             Lens.modify Accessor.gridState
                 (\grid ->
                     { grid
-                        | rows = grid.rows ++ [ Frame 1 ]
-                        , rawRows = grid.rawRows ++ [ "1fr" ]
+                        | rows = grid.rows ++ [ ScaleUnit (Frame 1) "1fr" ]
                         , cells =
                             grid.cells
                                 ++ [ List.map
@@ -120,15 +117,67 @@ update msg model =
                         if rowCount > 1 then
                             { grid
                                 | rows = List.take (rowCount - 1) grid.rows
-                                , rawRows = List.take (rowCount - 1) grid.rawRows
-                                , cells =
-                                    List.take (rowCount - 1) grid.cells
+                                , cells = List.take (rowCount - 1) grid.cells
                             }
                         else
                             grid
                 )
                 model
                 => []
+
+        InputColumn targetIdx str ->
+            Lens.modify Accessor.gridState
+                (\grid ->
+                    { grid
+                        | columns =
+                            List.indexedMap
+                                (\idx unit ->
+                                    if targetIdx == idx then
+                                        { unit
+                                            | input = str
+                                            , length =
+                                                GridState.convertToCellLength str
+                                                    |> Maybe.withDefault unit.length
+                                        }
+                                    else
+                                        unit
+                                )
+                                grid.columns
+                    }
+                )
+                model
+                => []
+
+        InputRow targetIdx str ->
+            Lens.modify Accessor.gridState
+                (\grid ->
+                    { grid
+                        | rows =
+                            List.indexedMap
+                                (\idx unit ->
+                                    if targetIdx == idx then
+                                        { unit
+                                            | input = str
+                                            , length =
+                                                GridState.convertToCellLength str
+                                                    |> Maybe.withDefault unit.length
+                                        }
+                                    else
+                                        unit
+                                )
+                                grid.rows
+                    }
+                )
+                model
+                => []
+
+
+listGetAt : Int -> List a -> Maybe a
+listGetAt idx xs =
+    if idx < 0 then
+        Nothing
+    else
+        List.head <| List.drop idx xs
 
 
 

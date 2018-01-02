@@ -17,7 +17,7 @@ view { gridState, editMode } =
         PanesMode ->
             Keyed.namedGrid None
                 []
-                { columns = List.map cellLengthToLength gridState.columns
+                { columns = List.map (.length >> cellLengthToLength) gridState.columns
                 , rows = namedRowsInPanes gridState.rows gridState.cells
                 , cells =
                     cellsToPanes editMode gridState.cells
@@ -27,10 +27,8 @@ view { gridState, editMode } =
         CellsMode ->
             Keyed.namedGrid None
                 []
-                { columns = List.map cellLengthToLength gridState.columns
-                , rows =
-                    namedRowsInCells gridState.rows gridState.cells
-                        |> Debug.log "ふみ"
+                { columns = List.map (.length >> cellLengthToLength) gridState.columns
+                , rows = namedRowsInCells gridState.rows gridState.cells
                 , cells =
                     gridState.cells
                         |> List.concat
@@ -41,23 +39,23 @@ view { gridState, editMode } =
             Debug.crash "Bug? ErrCode 0001"
 
 
-namedRowsInPanes : List CellLength -> List (List Cell) -> List ( Length, List NamedGridPosition )
-namedRowsInPanes lengths cellsList =
+namedRowsInPanes : List ScaleUnit -> List (List Cell) -> List ( Length, List NamedGridPosition )
+namedRowsInPanes units cellsList =
     List.map2
-        (\length cells ->
+        (\{ length } cells ->
             cellLengthToLength length => List.map (\cell -> span 1 cell.gridArea) cells
         )
-        lengths
+        units
         cellsList
 
 
-namedRowsInCells : List CellLength -> List (List Cell) -> List ( Length, List NamedGridPosition )
-namedRowsInCells lengths cellsList =
+namedRowsInCells : List ScaleUnit -> List (List Cell) -> List ( Length, List NamedGridPosition )
+namedRowsInCells units cellsList =
     List.map2
-        (\length cells ->
+        (\{ length } cells ->
             cellLengthToLength length => List.map (\cell -> span 1 <| "g" ++ toString cell.id) cells
         )
-        lengths
+        units
         cellsList
 
 
@@ -70,7 +68,7 @@ paneView { id, gridArea, cells } =
         ]
         [ text gridArea
         , when (List.length cells > 1)
-            (node "button" <| el ButtonStyle [] <| text "unchain")
+            (simpleButton ButtonStyle [ onClick <| BreakPane gridArea ] <| text "unchain")
         ]
 
 

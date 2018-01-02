@@ -5,17 +5,11 @@ import Types exposing (..)
 
 model : GridState
 model =
-    { columns = [ Px 120, Frame 4, Frame 1 ]
-    , rawColumns = [ "120px", "4fr", "1fr" ]
+    { columns = [ ScaleUnit (Px 120) "120px", ScaleUnit (Frame 4) "4fr", ScaleUnit (Frame 1) "1fr" ]
     , rows =
-        [ Px 60
-        , Frame 1
-        , Px 40
-        ]
-    , rawRows =
-        [ "60px"
-        , "1fr"
-        , "40px"
+        [ ScaleUnit (Px 60) "60px"
+        , ScaleUnit (Frame 1) "1fr"
+        , ScaleUnit (Px 40) "40px"
         ]
     , selectedCell = Nothing
     , cells =

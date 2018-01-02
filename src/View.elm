@@ -6,6 +6,7 @@ import Element.Input as Input
 import Element.Attributes as Attrs exposing (..)
 import Element.Events exposing (on, onClick)
 import Types exposing (..)
+import Types.GridState exposing (..)
 import View.StyleSheet exposing (..)
 import View.Helper exposing (..)
 import View.Menu
@@ -20,7 +21,7 @@ view model =
         appGrid model
 
 
-appGrid : Model -> Element Styles variation Msg
+appGrid : Model -> Element Styles Variations Msg
 appGrid model =
     namedGrid MainStyle
         [ width Attrs.fill
@@ -45,7 +46,7 @@ appGrid model =
         }
 
 
-editor : Model -> Element Styles variation Msg
+editor : Model -> Element Styles Variations Msg
 editor model =
     namedGrid None
         []
@@ -83,16 +84,16 @@ rowButtons =
         ]
 
 
-columnInputs : Model -> Element Styles variation Msg
+columnInputs : Model -> Element Styles Variations Msg
 columnInputs { gridState } =
     grid None
         []
-        { columns = List.map cellLengthToLength gridState.columns
+        { columns = List.map (.length >> cellLengthToLength) gridState.columns
         , rows = [ Attrs.fill ]
         , cells =
-            gridState.rawColumns
+            gridState.columns
                 |> List.indexedMap
-                    (\idx rawString ->
+                    (\idx unit ->
                         cell
                             { start = ( idx, 0 )
                             , width = 1
@@ -101,9 +102,11 @@ columnInputs { gridState } =
                                 row None
                                     [ verticalCenter, padding 1 ]
                                     [ Input.text InputStyle
-                                        [ padding 2 ]
-                                        { onChange = always NoOp
-                                        , value = rawString
+                                        [ padding 2
+                                        , vary HasError <| scaleUnitHasError unit
+                                        ]
+                                        { onChange = InputColumn idx
+                                        , value = unit.input
                                         , label = inputLabel
                                         , options = []
                                         }
@@ -113,16 +116,16 @@ columnInputs { gridState } =
         }
 
 
-rowInputs : Model -> Element Styles variation Msg
+rowInputs : Model -> Element Styles Variations Msg
 rowInputs { gridState } =
     grid None
         []
         { columns = [ Attrs.fill ]
-        , rows = List.map cellLengthToLength gridState.rows
+        , rows = List.map (.length >> cellLengthToLength) gridState.rows
         , cells =
-            gridState.rawRows
+            gridState.rows
                 |> List.indexedMap
-                    (\idx rawString ->
+                    (\idx unit ->
                         cell
                             { start = ( 0, idx )
                             , width = 1
@@ -131,9 +134,11 @@ rowInputs { gridState } =
                                 row None
                                     [ alignTop, padding 1 ]
                                     [ Input.text InputStyle
-                                        [ padding 2 ]
-                                        { onChange = always NoOp
-                                        , value = rawString
+                                        [ padding 2
+                                        , vary HasError <| scaleUnitHasError unit
+                                        ]
+                                        { onChange = InputRow idx
+                                        , value = unit.input
                                         , label = inputLabel
                                         , options = []
                                         }
