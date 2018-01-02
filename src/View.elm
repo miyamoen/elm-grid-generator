@@ -2,10 +2,12 @@ module View exposing (view)
 
 import Html exposing (Html, dl, dd, dt)
 import Element exposing (..)
+import Element.Input as Input
 import Element.Attributes as Attrs exposing (..)
 import Element.Events exposing (on, onClick)
 import Types exposing (..)
 import View.StyleSheet exposing (..)
+import View.Helper exposing (..)
 import View.Menu
 import View.GridEditor
 import Rocket exposing ((=>))
@@ -46,6 +48,8 @@ editor model =
             [ named "addc" <| addButtons
             , named "addr" <| addButtons
             , named "edit" <| View.GridEditor.view model
+            , named "column" <| columnInputs model
+            , named "row" <| rowInputs model
             ]
         }
 
@@ -53,7 +57,74 @@ editor model =
 addButtons : Element Styles variation Msg
 addButtons =
     row None
-        []
-        [ button None [] <| text "+"
-        , button None [] <| text "-"
+        [ padding 3, spacing 5, spread, clip ]
+        [ node "button" <| el ButtonStyle [ width <| percent 50 ] <| text "+"
+        , node "button" <| el ButtonStyle [ width <| percent 50 ] <| text "-"
         ]
+
+
+columnInputs : Model -> Element Styles variation Msg
+columnInputs { gridState } =
+    grid None
+        []
+        { columns = List.map cellLengthToLength gridState.columns
+        , rows = [ Attrs.fill ]
+        , cells =
+            gridState.rawColumns
+                |> List.indexedMap
+                    (\idx rawString ->
+                        cell
+                            { start = ( idx, 0 )
+                            , width = 1
+                            , height = 1
+                            , content =
+                                row None
+                                    [ verticalCenter, padding 1 ]
+                                    [ Input.text InputStyle
+                                        [ padding 2 ]
+                                        { onChange = always NoOp
+                                        , value = rawString
+                                        , label = inputLabel
+                                        , options = []
+                                        }
+                                    ]
+                            }
+                    )
+        }
+
+
+rowInputs : Model -> Element Styles variation Msg
+rowInputs { gridState } =
+    grid None
+        []
+        { columns = [ Attrs.fill ]
+        , rows = List.map cellLengthToLength gridState.rows
+        , cells =
+            gridState.rawRows
+                |> List.indexedMap
+                    (\idx rawString ->
+                        cell
+                            { start = ( 0, idx )
+                            , width = 1
+                            , height = 1
+                            , content =
+                                row None
+                                    [ alignTop, padding 1 ]
+                                    [ Input.text InputStyle
+                                        [ padding 2 ]
+                                        { onChange = always NoOp
+                                        , value = rawString
+                                        , label = inputLabel
+                                        , options = []
+                                        }
+                                    ]
+                            }
+                    )
+        }
+
+
+inputLabel =
+    Input.placeholder
+        { text = "100px, 5fr, 50%"
+        , label = Input.hiddenLabel ""
+        }

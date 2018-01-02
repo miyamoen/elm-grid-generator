@@ -23,10 +23,10 @@ view model =
             [ spacing 5 ]
             [ text "EditMode"
             , row None
-                []
+                [ spacing 5 ]
                 [ text "[panes]"
-                , button None [] <| text "cells"
-                , button None [] <| text "output"
+                , node "button" <| el ButtonStyle [] <| text "cells"
+                , node "button" <| el ButtonStyle [] <| text "output"
                 ]
             ]
         , hairline HRStyle
@@ -34,9 +34,9 @@ view model =
             [ spacing 5 ]
             [ text "Load preset"
             , row None
-                []
-                [ button None [ onClick <| SetPreset Simple ] <| text "Simple"
-                , button None [ onClick <| SetPreset HolyGrail ] <| text "HolyGrail"
+                [ spacing 5 ]
+                [ node "button" <| el ButtonStyle [ onClick <| SetPreset Simple ] <| text "Simple"
+                , node "button" <| el ButtonStyle [ onClick <| SetPreset HolyGrail ] <| text "HolyGrail"
                 ]
             ]
         , hairline HRStyle

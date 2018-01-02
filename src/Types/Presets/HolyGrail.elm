@@ -23,32 +23,41 @@ model =
     , cells =
         [ [ { id = 0
             , gridArea = "header"
+            , input = "header"
             }
           , { id = 3
             , gridArea = "header"
+            , input = "header"
             }
           , { id = 6
             , gridArea = "header"
+            , input = "header"
             }
           ]
         , [ { id = 1
             , gridArea = "left"
+            , input = "left"
             }
           , { id = 4
             , gridArea = "content"
+            , input = "content"
             }
           , { id = 7
             , gridArea = "right"
+            , input = "right"
             }
           ]
         , [ { id = 2
             , gridArea = "footer"
+            , input = "footer"
             }
           , { id = 5
             , gridArea = "footer"
+            , input = "footer"
             }
           , { id = 8
             , gridArea = "footer"
+            , input = "footer"
             }
           ]
         ]

@@ -12,5 +12,5 @@ model =
     , rowCount = 1
     , columnCount = 1
     , selectedCell = Nothing
-    , cells = [ [ { id = 0, gridArea = "g0" } ] ]
+    , cells = [ [ { id = 0, gridArea = "g0", input = "g0" } ] ]
     }

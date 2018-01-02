@@ -14,6 +14,8 @@ type Styles
     | MainStyle
     | MenuStyle
     | PaneStyle
+    | ButtonStyle
+    | InputStyle
     | LinkStyle
     | HRStyle
 
@@ -32,6 +34,19 @@ styleSheet =
             ]
         , style PaneStyle
             [ prop "outline" "black dashed 1px" ]
+        , style ButtonStyle
+            [ Transition.all
+            , Font.light
+            , Font.center
+            , Border.rounded 3
+            , Shadow.drop { offset = ( 0, 2 ), blur = 2, color = rgba 0 0 0 0.29 }
+            , pseudo "active"
+                [ Shadow.inset { offset = ( 0, 0 ), blur = 2, size = 0, color = rgba 128 128 128 0.1 }
+                , translate 0 2 0
+                ]
+            ]
+        , style InputStyle
+            [ Shadow.innerGlow (rgba 0 0 0 0.3) 0.5 ]
         , style LinkStyle
             [ Color.text <| rgba 119 170 255 1
             , Font.underline

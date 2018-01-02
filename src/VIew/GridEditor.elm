@@ -34,4 +34,12 @@ namedRows lengths cellsList =
 
 paneView : Pane -> Element Styles variation Msg
 paneView { id, gridArea, cells } =
-    el PaneStyle [] empty
+    wrappedColumn PaneStyle
+        [ center
+        , verticalCenter
+        , spacing 5
+        ]
+        [ text gridArea
+        , when (List.length cells > 1)
+            (node "button" <| el ButtonStyle [] <| text "unchain")
+        ]

@@ -22,6 +22,7 @@ type alias GridState =
 type alias Cell =
     { id : Int
     , gridArea : String
+    , input : String
     }
 
 
