@@ -2,17 +2,20 @@ module View.GridEditor exposing (view)
 
 import Element exposing (..)
 import Element.Attributes as Attrs exposing (..)
-import Element.Events exposing (on, onClick)
+import Element.Events exposing (on, onClick, onBlur)
+import Element.Input as Input
 import Element.Keyed as Keyed
 import Types exposing (..)
 import Types.GridState exposing (..)
 import View.StyleSheet exposing (..)
 import View.Helper exposing (..)
 import Rocket exposing ((=>))
+import Keyboard.Event exposing (KeyboardEvent, considerKeyboardEvent)
+import Keyboard.Key exposing (Key(..))
 
 
 view : Model -> Element Styles variation Msg
-view { gridState, editMode } =
+view { gridState, editMode, selectedCellId, selectedGridArea } =
     case editMode of
         PanesMode ->
             Keyed.namedGrid None
@@ -32,7 +35,16 @@ view { gridState, editMode } =
                 , cells =
                     gridState.cells
                         |> List.concat
-                        |> List.map (\cell -> Keyed.named ("g" ++ toString cell.id) <| cellView cell)
+                        |> List.map
+                            (\cell ->
+                                Keyed.named ("g" ++ toString cell.id) <|
+                                    cellView
+                                        (selectedCellId
+                                            |> Maybe.map (\id -> id == cell.id)
+                                            |> Maybe.withDefault False
+                                        )
+                                        cell
+                            )
                 }
 
         OutputMode ->
@@ -72,12 +84,33 @@ paneView { id, gridArea, cells } =
         ]
 
 
-cellView : Cell -> Element Styles variation Msg
-cellView { id, gridArea, input } =
+cellView : Bool -> Cell -> Element Styles variation Msg
+cellView selected { id, gridArea, input } =
     column PaneStyle
         [ center
         , verticalCenter
         , spacing 5
+        , padding 3
         ]
-        [ text gridArea
+        [ if selected then
+            Input.text NameInputStyle
+                [ paddingXY 0 5
+                , Attrs.id "target-cell"
+                , onBlur UnSelectCell
+                , on "keydown" <|
+                    considerKeyboardEvent
+                        (\event ->
+                            if event.keyCode == Enter then
+                                Just EnterCellInput
+                            else
+                                Nothing
+                        )
+                ]
+                { onChange = InputSelectCell
+                , value = input
+                , label = Input.hiddenLabel ""
+                , options = []
+                }
+          else
+            el None [ onClick <| SelectCell id ] <| text gridArea
         ]

@@ -16,6 +16,7 @@ type Styles
     | PaneStyle
     | ButtonStyle
     | InputStyle
+    | NameInputStyle
     | LinkStyle
     | HRStyle
 
@@ -54,6 +55,10 @@ styleSheet =
             , variation HasError
                 [ Color.background <| rgba 255 170 170 0.8
                 ]
+            ]
+        , style NameInputStyle
+            [ Shadow.innerGlow (rgba 0 0 0 0.3) 0.5
+            , Font.center
             ]
         , style LinkStyle
             [ Color.text <| rgba 119 170 255 1

@@ -4,6 +4,8 @@ module Types exposing (..)
 type alias Model =
     { editMode : EditMode
     , gridState : GridState
+    , selectedCellId : Maybe Int
+    , selectedGridArea : Maybe String
     }
 
 
@@ -11,7 +13,6 @@ type alias GridState =
     { cells : List (List Cell)
     , rows : List ScaleUnit
     , columns : List ScaleUnit
-    , selectedCell : Maybe Cell
     }
 
 
@@ -63,3 +64,7 @@ type Msg
     | InputColumn Int String
     | InputRow Int String
     | BreakPane String
+    | SelectCell Int
+    | UnSelectCell
+    | InputSelectCell String
+    | EnterCellInput

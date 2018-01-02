@@ -11,7 +11,6 @@ model =
         , ScaleUnit (Frame 1) "1fr"
         , ScaleUnit (Px 40) "40px"
         ]
-    , selectedCell = Nothing
     , cells =
         [ [ { id = 0
             , gridArea = "header"

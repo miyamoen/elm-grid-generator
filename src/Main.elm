@@ -1,6 +1,8 @@
 module Main exposing (..)
 
 import Html
+import Dom
+import Task
 import View exposing (view)
 import Types exposing (..)
 import Types.GridState as GridState
@@ -8,6 +10,7 @@ import Types.Accessor as Accessor
 import Types.Presets.Simple as Simple
 import Types.Presets.HolyGrail as HolyGrail
 import Monocle.Lens as Lens exposing (Lens)
+import Keyboard.Event
 import Rocket exposing (..)
 
 
@@ -18,6 +21,8 @@ init : ( Model, List (Cmd Msg) )
 init =
     { editMode = CellsMode
     , gridState = HolyGrail.model
+    , selectedCellId = Nothing
+    , selectedGridArea = Nothing
     }
         => []
 
@@ -191,6 +196,89 @@ update msg model =
                 )
                 model
                 => []
+
+        SelectCell id ->
+            { model | selectedCellId = Just id }
+                => [ Dom.focus "target-cell"
+                        |> Task.attempt
+                            (\res ->
+                                let
+                                    _ =
+                                        Debug.log "target-cell focused" res
+                                in
+                                    NoOp
+                            )
+                   ]
+
+        UnSelectCell ->
+            case model.selectedCellId of
+                Just targetId ->
+                    Lens.modify Accessor.gridState
+                        (\grid ->
+                            { grid
+                                | cells =
+                                    listListMap
+                                        (\cell ->
+                                            if cell.id == targetId then
+                                                { cell | input = cell.gridArea }
+                                            else
+                                                cell
+                                        )
+                                        grid.cells
+                            }
+                        )
+                        { model | selectedCellId = Nothing }
+                        => []
+
+                Nothing ->
+                    model
+                        => []
+
+        InputSelectCell str ->
+            case model.selectedCellId of
+                Just targetId ->
+                    Lens.modify Accessor.gridState
+                        (\grid ->
+                            { grid
+                                | cells =
+                                    listListMap
+                                        (\cell ->
+                                            if cell.id == targetId then
+                                                { cell | input = str }
+                                            else
+                                                cell
+                                        )
+                                        grid.cells
+                            }
+                        )
+                        model
+                        => []
+
+                Nothing ->
+                    model => []
+
+        EnterCellInput ->
+            case model.selectedCellId of
+                Just targetId ->
+                    Lens.modify Accessor.gridState
+                        (\grid ->
+                            { grid
+                                | cells =
+                                    listListMap
+                                        (\cell ->
+                                            if cell.id == targetId then
+                                                { cell | gridArea = cell.input }
+                                            else
+                                                cell
+                                        )
+                                        grid.cells
+                            }
+                        )
+                        { model | selectedCellId = Nothing }
+                        => []
+
+                Nothing ->
+                    model => []
 
 
 listGetAt : Int -> List a -> Maybe a
