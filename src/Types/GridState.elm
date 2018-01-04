@@ -9,7 +9,11 @@ module Types.GridState
 
 import Types exposing (..)
 import Set
+import Json.Encode as Encode exposing (Value)
+import Json.Decode as Decode exposing (Decoder)
+import Json.Decode.Pipeline exposing (..)
 import Mustache
+import Rocket exposing (..)
 
 
 cellsToPanes : EditMode -> List (List Cell) -> List Pane
@@ -99,6 +103,102 @@ scaleUnitHasError { input } =
     convertToCellLength input
         |> Maybe.map (\_ -> False)
         |> Maybe.withDefault True
+
+
+
+---- JSON ----
+
+
+jsonEncoder : GridState -> Value
+jsonEncoder { cells, rows, columns } =
+    Encode.object
+        [ "cells" => (Encode.list <| List.map (\list -> Encode.list <| List.map cellEncoder list) cells)
+        , "rows" => (Encode.list <| List.map (.length >> cellLengthEncoder) rows)
+        , "columns" => (Encode.list <| List.map (.length >> cellLengthEncoder) columns)
+        ]
+
+
+cellEncoder : Cell -> Value
+cellEncoder { id, gridArea } =
+    Encode.object
+        [ "id" => Encode.int id
+        , "gridArea" => Encode.string gridArea
+        ]
+
+
+cellLengthEncoder : CellLength -> Value
+cellLengthEncoder length =
+    case length of
+        Px float ->
+            Encode.object
+                [ "type" => Encode.string "px"
+                , "length" => Encode.float float
+                ]
+
+        Percent float ->
+            Encode.object
+                [ "type" => Encode.string "%"
+                , "length" => Encode.float float
+                ]
+
+        Frame int ->
+            Encode.object
+                [ "type" => Encode.string "fr"
+                , "length" => Encode.int int
+                ]
+
+
+jsonDecoder : Decoder GridState
+jsonDecoder =
+    decode GridState
+        |> required "cells" (Decode.list <| Decode.list cellDecoder)
+        |> required "rows" (Decode.list scaleUnitDecoder)
+        |> required "columns" (Decode.list scaleUnitDecoder)
+
+
+cellDecoder : Decoder Cell
+cellDecoder =
+    decode Cell
+        |> required "id" Decode.int
+        |> required "gridArea" Decode.string
+        |> required "gridArea" Decode.string
+
+
+scaleUnitDecoder : Decoder ScaleUnit
+scaleUnitDecoder =
+    decode ScaleUnit
+        |> custom cellLengthDecoder
+        |> custom (Decode.map cellLengthToCss cellLengthDecoder)
+
+
+cellLengthDecoder : Decoder CellLength
+cellLengthDecoder =
+    decode cellLengthDecoder_
+        |> required "type" Decode.string
+        |> resolve
+
+
+cellLengthDecoder_ : String -> Decoder CellLength
+cellLengthDecoder_ type_ =
+    case type_ of
+        "px" ->
+            decode Px
+                |> required "length" Decode.float
+
+        "%" ->
+            decode Percent
+                |> required "length" Decode.float
+
+        "fr" ->
+            decode Frame
+                |> required "length" Decode.int
+
+        _ ->
+            Decode.fail ("Unknown cell length type: " ++ type_)
+
+
+
+---- CSS Ouput ----
 
 
 toCss : GridState -> String

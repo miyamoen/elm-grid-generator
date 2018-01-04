@@ -9,6 +9,7 @@
     "exposed-modules": [],
     "dependencies": {
         "Gizra/elm-keyboard-event": "1.0.0 <= v < 2.0.0",
+        "NoRedInk/elm-decode-pipeline": "3.0.0 <= v < 4.0.0",
         "NoRedInk/rocket-update": "1.0.0 <= v < 2.0.0",
         "SwiftsNamesake/proper-keyboard": "3.0.1 <= v < 4.0.0",
         "arturopala/elm-monocle": "1.5.0 <= v < 2.0.0",
