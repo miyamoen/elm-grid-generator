@@ -56,6 +56,12 @@ appGrid model =
                         ( Key.Down, False, True ) ->
                             Just AddRow
 
+                        ( Key.S, True, False ) ->
+                            Just SaveGridState
+
+                        ( Key.L, True, False ) ->
+                            Just LoadGridState
+
                         _ ->
                             Nothing
                 )

@@ -42,11 +42,21 @@ view { editMode } =
         , hairline HRStyle
         , column None
             [ spacing 5 ]
+            [ text "Save/Load Grid"
+            , row None
+                [ spacing 5 ]
+                [ simpleButton ButtonStyle [ onClick <| SaveGridState ] <| text "Save"
+                , simpleButton ButtonStyle [ onClick <| LoadGridState ] <| text "Load"
+                ]
+            ]
+        , hairline HRStyle
+        , column None
+            [ spacing 5 ]
             [ text "Load preset"
             , row None
                 [ spacing 5 ]
-                [ node "button" <| el ButtonStyle [ onClick <| SetPreset Simple ] <| text "Simple"
-                , node "button" <| el ButtonStyle [ onClick <| SetPreset HolyGrail ] <| text "HolyGrail"
+                [ simpleButton ButtonStyle [ onClick <| SetPreset Simple ] <| text "Simple"
+                , simpleButton ButtonStyle [ onClick <| SetPreset HolyGrail ] <| text "HolyGrail"
                 ]
             ]
         , hairline HRStyle
@@ -55,7 +65,11 @@ view { editMode } =
             [ h3 None [] <| text "Shortcut"
             , html <|
                 dl []
-                    [ dt [] [ Html.text "Ctrl-1" ]
+                    [ dt [] [ Html.text "Ctrl-S" ]
+                    , dd [] [ Html.text "Save" ]
+                    , dt [] [ Html.text "Ctrl-L" ]
+                    , dd [] [ Html.text "Load" ]
+                    , dt [] [ Html.text "Ctrl-1" ]
                     , dd [] [ Html.text "Pane Mode" ]
                     , dt [] [ Html.text "Ctrl-2" ]
                     , dd [] [ Html.text "Cell Mode" ]

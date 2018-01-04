@@ -1,6 +1,7 @@
 module Types exposing (..)
 
 import Keyboard.Event exposing (KeyboardEvent)
+import Json.Encode exposing (Value)
 
 
 type alias Model =
@@ -74,3 +75,6 @@ type Msg
     | UnSelectPane
     | InputSelectedPane String
     | EnterPaneInput String
+    | SaveGridState
+    | LoadGridState
+    | LoadedGridState (Maybe Value)

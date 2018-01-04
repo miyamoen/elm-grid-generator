@@ -3,6 +3,7 @@ module Main exposing (..)
 import Html
 import Dom
 import Task
+import Json.Decode as Json
 import View exposing (view)
 import Types exposing (..)
 import Types.GridState as GridState
@@ -19,10 +20,13 @@ import Dom
 ---- MODEL ----
 
 
-init : ( Model, List (Cmd Msg) )
-init =
-    { editMode = CellsMode
-    , gridState = HolyGrail.model
+init : Maybe Json.Value -> ( Model, List (Cmd Msg) )
+init maybeJson =
+    { editMode = PanesMode
+    , gridState =
+        maybeJson
+            |> Maybe.andThen GridState.decodeValue
+            |> Maybe.withDefault HolyGrail.model
     , selectedCellId = Nothing
     , selectedGridArea = Nothing
     }
@@ -360,6 +364,20 @@ update msg model =
                 ( _, Nothing ) ->
                     model => []
 
+        SaveGridState ->
+            model => [ GridState.saveCmd model.gridState ]
+
+        LoadGridState ->
+            model => [ GridState.loadCmd ]
+
+        LoadedGridState maybeJson ->
+            case Maybe.andThen GridState.decodeValue maybeJson of
+                Just gridState ->
+                    { model | gridState = gridState } => []
+
+                Nothing ->
+                    model => []
+
 
 listGetAt : Int -> List a -> Maybe a
 listGetAt idx xs =
@@ -378,11 +396,16 @@ listListMap tagger listList =
 ---- PROGRAM ----
 
 
-main : Program Never Model Msg
+main : Program (Maybe Json.Value) Model Msg
 main =
-    Html.program
+    Html.programWithFlags
         { view = view
-        , init = init |> batchInit
+        , init = init >> batchInit
         , update = update >> batchUpdate
-        , subscriptions = always Sub.none
+        , subscriptions = subscriptions
         }
+
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    GridState.loaded LoadedGridState

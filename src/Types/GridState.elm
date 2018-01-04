@@ -1,10 +1,14 @@
-module Types.GridState
+port module Types.GridState
     exposing
         ( cellsToPanes
         , getMinBlankIds
         , convertToCellLength
         , scaleUnitHasError
         , toCss
+        , saveCmd
+        , loadCmd
+        , loaded
+        , decodeValue
         )
 
 import Types exposing (..)
@@ -106,6 +110,30 @@ scaleUnitHasError { input } =
 
 
 
+---- port ----
+
+
+port save : Value -> Cmd msg
+
+
+saveCmd : GridState -> Cmd msg
+saveCmd state =
+    jsonEncoder state
+        |> save
+
+
+port load : () -> Cmd msg
+
+
+loadCmd : Cmd msg
+loadCmd =
+    load ()
+
+
+port loaded : (Maybe Value -> msg) -> Sub msg
+
+
+
 ---- JSON ----
 
 
@@ -146,6 +174,12 @@ cellLengthEncoder length =
                 [ "type" => Encode.string "fr"
                 , "length" => Encode.int int
                 ]
+
+
+decodeValue : Value -> Maybe GridState
+decodeValue json =
+    Decode.decodeValue jsonDecoder json
+        |> Result.toMaybe
 
 
 jsonDecoder : Decoder GridState
